@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter/material.dart';
 
 // ignore: constant_identifier_names
-const String KEY = "FLAG{here_15_5ecret_ky4_12345ab}";
+const String KEY = "FLAG{5ecret_ke4}";
 
 void main() {
   runApp(const MyApp());
@@ -56,8 +57,6 @@ class _MyHomePageState extends State<MyHomePage> {
   String _input = '';
   String _output = '';
 
-  get http => null;
-
   void _handleText(String s) {
     setState(() {
       _input = s;
@@ -76,35 +75,33 @@ class _MyHomePageState extends State<MyHomePage> {
       nonce: nonce,
     );
 
-    final encoded = base64Encode(secretBox.cipherText);
+    final encoded = base64Encode(secretBox.concatenation());
     return encoded;
   }
 
   Future<String> _decrypt(String encoded) async {
     final encrypted = base64Decode(encoded);
     final algorithm = AesGcm.with128bits();
-    final nonceSize = algorithm.nonceLength;
-    final nonce = encrypted.sublist(0, nonceSize);
-    final c = encrypted.sublist(nonceSize);
-    final secretBox = SecretBox(
-      c,
-      nonce: nonce,
-      mac: Mac.empty,
+    final secretBox = SecretBox.fromConcatenation(
+      encrypted,
+      nonceLength: 12,
+      macLength: 16,
     );
     final secretKey = await algorithm.newSecretKeyFromBytes(utf8.encode(KEY));
     final clearText = await algorithm.decrypt(
       secretBox,
       secretKey: secretKey,
     );
-    return clearText.toString();
+    return utf8.decode(clearText);
   }
 
   void _send() async {
     final encodedName = await _encrypt(_input);
+
     final response = await http.post(
       Uri.parse('https://encrypted-connection-sample.herokuapp.com/greet'),
       headers: {
-        "Content-Type": "application/x-ww-form-urlencoded",
+        "Content-Type": "application/x-www-form-urlencoded",
       },
       encoding: Encoding.getByName("utf-8"),
       body: {"name": encodedName},
