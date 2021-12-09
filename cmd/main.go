@@ -14,7 +14,7 @@ import (
 
 
 // cipher
-var KEY = []byte("FLAG{here_15_5ecret_ky4_12345ab}")
+var KEY = []byte("FLAG{5ecret_ke4}")
 
 func encrypt(s string) (string, error) {
   c, err := aes.NewCipher(KEY)
