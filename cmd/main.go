@@ -95,6 +95,10 @@ func main() {
     c.String(http.StatusOK, "Hello, World!")
   })
 
+  check_cipher := "WJ8xFbU+lT4P//TntM478c+g7tgB7zv9Dec543PrNYoS"
+  plain, err := decrypt(check_cipher)
+  fmt.Printf("%s, %s\n", plain, err)
+
   port := os.Getenv("PORT")
   if port == "" {
     port = "8080"
